@@ -1,0 +1,16 @@
+.diff-code-insert,
+.diff-code-delete {
+    background-color: #393232;
+    /* Your preferred background color */
+}
+
+/* diff-code-insert: Code of an addition. diff-code-delete: Code of a deletion. */
+
+.diff-line-hover-old.diff-gutter,
+.diff-line-hover-new.diff-gutter,
+.diff-unified .diff-line:hover .diff-gutter {
+    &::before {
+        font-family: "FontAwesome";
+        content: "\f4b2";
+    }
+}
