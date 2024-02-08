@@ -1,18 +1,26 @@
 import { apiSlice } from "@/app/api/apiSlice";
+import { FormatPayload } from "../../utils/formatPayload";
 
 export const PostApiSlice = apiSlice.injectEndpoints({
 
     endpoints: (builder: any) => ({
 
         getAllPosts: builder.query({
-            query: ({ channelId }: { channelId: string }) => ({
+            query: (channelId: string) => ({
                 url: `api/posts/getall/${channelId}`,
                 method: 'GET',
             }),
+            // providesTags: (result: any, error: any, arg: any) => {
+            //     console.log({ result, error, arg })
+            //     return [{
+            //         type: 'Conversation',
+            //         id: 'LIST'
+            //     }]
+            // },
             async onQueryStarted(arg: unknown, { dispatch, queryFulfilled }: unknown) {
                 try {
-                    console.log({ arg })
-                    console.log({ dispatch })
+                    // console.log({ arg })
+                    // console.log({ dispatch })
                     const data = await queryFulfilled;
                     console.log({ data })
                     // dispatch(handleUser(data));
@@ -21,7 +29,6 @@ export const PostApiSlice = apiSlice.injectEndpoints({
                 }
             }
         }),
-
 
         createPost: builder.mutation({
             query: (payload: any) => ({
@@ -29,19 +36,32 @@ export const PostApiSlice = apiSlice.injectEndpoints({
                 method: 'POST',
                 body: payload
             }),
-            async onQueryStarted(arg: any, { dispatch, queryFulfilled }: any) {
+
+            async onQueryStarted(createPostPayload: any, { dispatch, queryFulfilled }) {
                 try {
-                    const data = await queryFulfilled;
-                    console.log({ data })
-
-                    // dispatch(handleUser(data));
-
+                    const newPost = await queryFulfilled;
+                    dispatch(
+                        PostApiSlice
+                            .util
+                            .upsertQueryData('getAllPosts',
+                                createPostPayload?.channelId,
+                                (draft: any) => {
+                                    console.log('$$$$$$$$$$$$$$$$$')
+                                    console.log(newPost.data, 'newpost.data')
+                                    console.log('$$$$$$$$$$$$$$$$$')
+                                    let serializedPayload = FormatPayload(newPost.data);
+                                    console.log({ serializedPayload });
+                                    return [
+                                        ...draft,
+                                        serializedPayload
+                                    ]
+                                })
+                    );
                 } catch (error) {
                     console.log(error)
                 }
-            }
+            },
         }),
-
 
         updatePost: builder.mutation({
             query: (payload: any) => ({
@@ -61,9 +81,8 @@ export const PostApiSlice = apiSlice.injectEndpoints({
             }
         }),
 
-
         deletePost: builder.mutation({
-            query: (postId:string) => ({
+            query: (postId: string) => ({
                 url: `/api/posts/delete/${postId}`,
                 method: 'POST',
             }),
@@ -79,10 +98,10 @@ export const PostApiSlice = apiSlice.injectEndpoints({
         }),
 
         increamentPostReaction: builder.mutation({
-            query: (payload:any) => ({
+            query: (payload: any) => ({
                 url: `/api/posts/increament/reaction/${payload.postId}`,
                 method: 'POST',
-                body:payload
+                body: payload
             }),
             async onQueryStarted(arg: any, { dispatch, queryFulfilled }: any) {
                 try {
@@ -95,7 +114,7 @@ export const PostApiSlice = apiSlice.injectEndpoints({
         }),
 
         decreamentPostReaction: builder.mutation({
-            query: (payload:any) => ({
+            query: (payload: any) => ({
                 url: `/api/posts/decreament/reaction/${payload.postId}`,
                 method: 'POST',
                 body: payload
@@ -112,7 +131,7 @@ export const PostApiSlice = apiSlice.injectEndpoints({
         }),
 
         addPostReplies: builder.mutation({
-            query: (payload:any) => ({
+            query: (payload: any) => ({
                 url: `/api/posts/add/reply/${payload.postId}`,
                 method: 'POST',
                 body: payload
@@ -128,7 +147,7 @@ export const PostApiSlice = apiSlice.injectEndpoints({
         }),
 
         updatePostReplies: builder.mutation({
-            query: (payload:any) => ({
+            query: (payload: any) => ({
                 url: `/api/posts/update/reply/${payload.postId}`,
                 method: 'POST',
                 body: payload
@@ -163,7 +182,6 @@ export const PostApiSlice = apiSlice.injectEndpoints({
 
 
 export const {
-
     useGetAllPostsQuery,
     useCreatePostMutation,
     useUpdatePostMutation,
@@ -173,5 +191,4 @@ export const {
     useAddPostRepliesMutation,
     useUpdatePostRepliesMutation,
     useDeletePostRepliesMutation
-
 } = PostApiSlice
