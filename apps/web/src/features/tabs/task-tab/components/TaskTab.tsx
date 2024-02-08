@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { ModalContainer } from "./ModalContainer"
 import { Table } from "./Table"
 
@@ -7,22 +7,31 @@ enum ModalType {
     UPDATE = 'update'
 }
 
-interface Modal {
-    isOpen: boolean,
-    type: ModalType.CREATE | ModalType.UPDATE | null
-}
+export default function TaskTab() {
 
-export const TaskTab = () => {
+    const taskRef = useRef(null);
 
     const [open, setOpen] = useState(false);
 
+    const [modalType, setModalType] = useState<
+        ModalType.CREATE |
+        ModalType.UPDATE |
+        ''
+    >('');
+
     return (
         <>
-            <Table setOpen={setOpen} />
+            <Table
+                setModalType={setModalType}
+                setOpen={setOpen}
+                ref={taskRef}
+            />
 
             <ModalContainer
+                modalType={modalType}
                 open={open}
                 setOpen={setOpen}
+                ref={taskRef}
             />
 
         </>
