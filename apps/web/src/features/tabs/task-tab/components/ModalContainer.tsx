@@ -1,11 +1,12 @@
 import { ModalProvider } from "@/components/ui/modal";
 import { CreateTask } from "./CreateTask";
 import { UpdateTask } from "./UpdateTask";
+import React, { SetStateAction} from "react";
 
 enum Priority {
-    HIGH = 'high',
-    MEDIUM = 'medium',
-    LOW = 'low'
+    HIGH = "High",
+    MEDIUM = 'Medium',
+    LOW = "Low"
 }
 
 const BgColorProvider = (type: string) => {
@@ -20,35 +21,43 @@ const BgColorProvider = (type: string) => {
 }
 
 enum ModalType {
-
     CREATE = 'create',
     UPDATE = 'update'
 }
 
-const ModalBody = ({ modalType }: { modalType: string }) => {
+type ModalContainerProps = {
+    open: boolean;
+    setOpen: React.Dispatch<SetStateAction<boolean>>;
+    modalType: string;
+}
 
+const ModalBody = React.forwardRef(({ modalType }: { modalType: string }, ref) => {
     switch (modalType) {
         case ModalType.CREATE:
             return <CreateTask />
         case ModalType.UPDATE:
-            return <UpdateTask />
+            return <UpdateTask ref={ref} />
         default:
             return null
     }
-}
+})
 
-export const ModalContainer = ({ open, setOpen }: any) => {
+export const ModalContainer = React.forwardRef(
+    ({ open, setOpen, modalType }: ModalContainerProps,
+        ref: any
+    ) => {
+        return (
+            <ModalProvider
+                title="Create Task for People"
+                open={open}
+                setOpen={setOpen}>
 
-    return (
-        <ModalProvider
-            title="Create Task for People"
-            open={open}
-            setOpen={setOpen}>
+                <ModalBody
+                    ref={ref}
+                    modalType={modalType}
+                />
 
-            <ModalBody
-                modalType={'create'}
-            />
+            </ModalProvider>
+        )
+    })
 
-        </ModalProvider>
-    )
-}
