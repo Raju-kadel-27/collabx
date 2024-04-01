@@ -17,8 +17,8 @@ import { useToast } from '@chakra-ui/react'
 import { useDispatch } from 'react-redux';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { storeCredentials } from '../redux/slices/userSlice';
 import { useLoginMutation } from '../redux/apis/authApiSlice';
-import { storeAccessToken, storeCredentials } from '../redux/slices/userSlice';
 
 const avatars = [
     {
@@ -43,7 +43,7 @@ const avatars = [
     },
 ]
 
-const Blur = (props:any) => {
+const Blur = (props: any) => {
     return (
         <Icon
             width={useBreakpointValue({ base: '100%', md: '40vw', lg: '30vw' })}
@@ -63,15 +63,12 @@ const Blur = (props:any) => {
         </Icon>
     )
 }
-
-export const Login = () => {
-
+export default function Login() {
     const initial = {
         email: '',
         password: '',
     }
     const [formData, setFormData] = useState(initial);
-
     const navigateTo = useNavigate()
     const dispatch = useDispatch()
     const toast = useToast()
@@ -81,9 +78,7 @@ export const Login = () => {
         isSuccess,
         error
     }] = useLoginMutation<any>();
-
-
-    const handleChange = (e:any) => {
+    const handleChange = (e: any) => {
         setFormData(
             {
                 ...formData,
@@ -91,17 +86,17 @@ export const Login = () => {
             }
         )
     };
-    const handleSubmit = async (e:any) => {
+    const handleSubmit = async (e: any) => {
         e.preventDefault()
         try {
             const { email, password } = formData;
             const { accessToken, user } = await login({ email, password }).unwrap()
-            console.log({ user })
+            // console.log({ user })
             localStorage.setItem('isUser', 'yes');
             dispatch(storeCredentials({ accessToken, user }));
             setFormData(initial);
             navigateTo('/dashboard');
-        } catch (err:any) {
+        } catch (err: any) {
             let errMessage = err?.data?.error?.details[0]?.message;
             toast({
                 title: errMessage,
@@ -122,7 +117,6 @@ export const Login = () => {
             // errRef.current.focus();
         }
     };
-
     return (
         <Box position={'relative'} height={'100vh'} overflow={'hidden'}>
             <Container

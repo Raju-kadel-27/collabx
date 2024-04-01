@@ -40,4 +40,5 @@ export const {
 export default userSlice.reducer
 
 export const userSelector = (state: any) => state.root.user.user.userDetails;
+export const tokenSelector=(state:any)=> state.root.user.user.accessToken
 export const selectAccessToken = (state: any) => state.root.user.user.accessToken;

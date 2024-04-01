@@ -1,7 +1,8 @@
 export const TableHeadings = [
     'Title',
     'Project',
-    'Start date',
+    'Start Date',
+    'End Date',
     'Priority',
     'Status',
     'Assignees',

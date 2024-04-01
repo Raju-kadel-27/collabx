@@ -1,14 +1,28 @@
-import React from "react";
+import React, { memo } from "react";
 import { HiSpeakerphone } from "react-icons/hi";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { MdOutlineUpdate } from "react-icons/md";
-import { Divider } from "@chakra-ui/react";
-import { Badge } from '@chakra-ui/react'
+import { Divider, Tooltip } from "@chakra-ui/react";
+import { Badge } from '@chakra-ui/react';
+import { FaCircle } from "react-icons/fa";
+import { useDeleteAnnouncementMutation } from "../redux/apis/AnnouncementApiSlice";
 
 enum Priority {
-    HIGH = 'high',
-    MEDIUM = 'medium',
-    LOW = 'low'
+    HIGH = "HIGH",
+    MEDIUM = 'MEDIUM',
+    LOW = "LOW"
+}
+
+enum Status {
+    ToDo = 'To Do',
+    InProgress = 'In Progress',
+    Done = 'Done'
+}
+
+const FormatDate = {
+    getMonth: (date: string) => { return 'Dec' },
+    getDay: (date: string) => { return '04' },
+    getWeekDay: (date: string) => { return 'Monday' }
 }
 
 const BadgeColorProvider = (type: string) => {
@@ -23,67 +37,112 @@ const BadgeColorProvider = (type: string) => {
 }
 
 interface CardProps {
-    priority: string;
-    announcementContent: string;
-    day: string;
-    date: string;
-    setOpen: React.Dispatch<React.SetStateAction<boolean>>
-}
-
-export const Card = ({
-    priority,
-    announcementContent,
-    day,
-    date,
-    setOpen
-}: CardProps) => {
-
-    const color = BadgeColorProvider(priority)
-
-    const handleClickDelete = (e: React.MouseEvent<HTMLElement>) => {
-        console.log({ e })
+    item: {
+        announcer: any;
+        attachments: any[];
+        content: string;
+        createdAt: string;
+        priority: string;
+        title: string;
+        updatedAt: string;
+        __v: number;
+        _id: string;
     }
-    const handleClickUpdate = (e: React.MouseEvent<HTMLElement>) => {
-        console.log({ e })
-        setOpen((prev: boolean) => !prev)
+    setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+    setModalType: React.Dispatch<React.SetStateAction<string>>;
+};
+
+export const Card = React.forwardRef(({
+    item,
+    setOpen,
+    setModalType
+}: CardProps,
+    ref: any
+) => {
+
+    // console.log(ref.current, 'cardRef.current is here...')
+
+    const [deleteAnnouncement, {
+        isLoading,
+        error,
+        isError
+    }] = useDeleteAnnouncementMutation()
+
+    // console.log({
+    //     isLoading,
+    //     isError,
+    //     error
+    // })
+
+    const color = BadgeColorProvider(item.priority)
+
+    const handleClickDelete = async (e: React.MouseEvent<HTMLElement>) => {
+
+        const response = await deleteAnnouncement(item._id);
+
+        // console.log({ response });
+    }
+
+    const handleClickUpdate = () => {
+
+        ref.current = item;
+
+        setOpen((prev: boolean) => !prev);
+
+        setModalType('update');
+
     }
 
     return (
         <>
-            <div
-                className={`flex p-4`} >
+            <div className={`flex p-2`} >
                 <div className="w-fit px-4">
                     <HiSpeakerphone size={28} />
                 </div>
                 <div className="font-lato flex-grow">
-                    <p className="font-semibold">
-                        About Techfest
-                        <Badge mx={2} colorScheme={color}>{priority}</Badge>
+                    <div className="font-semibold flex items-center">
+                        <p>{item.title}</p>
+                        <Badge mx={2} colorScheme={color}>
+                            {item.priority}
+                        </Badge>
+                        <FaCircle size={6} color={'gray'} />
+                        <Badge mx={2} colorScheme={'blue'}>
+                            {item.announcer.name}
+                        </Badge>
+                        <FaCircle size={6} color={'gray'} />
+                        <Badge mx={2} colorScheme={'yellow'}>
+                            {FormatDate.getWeekDay(item.createdAt)}
+                        </Badge>
+                        <FaCircle size={6} color={'gray'} />
+                        <Badge mx={2} colorScheme={'green'}>
+                            <span>{FormatDate.getMonth(item.createdAt)}</span>
+                            <span className="ml-1">{FormatDate.getDay(item.createdAt)}</span>
+                        </Badge>
+                    </div>
+                    <p className="font-lato max-w-2xl">
+                        {item.content}
                     </p>
-                    <p className="font-lato max-w-xl">
-                        {announcementContent}
-                    </p>
-                </div>
-                <div className="px-4 w-48 mx-4">
-                    <p className="text-black bg-gray-100 w-fit rounded-lg px-2 font-semibold font-lato text-md my-1">
-                        {day}
-                    </p>
-                    <p className="text-black font-lato text-sm ">
-                        {date}
-                    </p>
-
-                    <div className="flex space-x-3 my-3">
-                        <button className="hover:cursor-pointer" onClick={handleClickDelete}>
-                            <RiDeleteBin6Line size='20' />
+                    <div className="flex space-x-1 my-3">
+                        <button
+                            className="hover:cursor-pointer p-1 border-[1px]"
+                            onClick={handleClickDelete}>
+                            <Tooltip label="Delete" aria-label='A tooltip'>
+                                <span><RiDeleteBin6Line size='16' /></span>
+                            </Tooltip>
                         </button>
-                        <button className="hover:cursor-pointer" onClick={handleClickUpdate}>
-                            <MdOutlineUpdate size='20' />
+                        <button
+                            className="hover:cursor-pointer p-1 border-[1px]"
+                            onClick={handleClickUpdate}>
+                            <Tooltip label="Update" aria-label='A tooltip'>
+                                <span><MdOutlineUpdate size='16' /></span>
+                            </Tooltip>
                         </button>
                     </div>
                 </div>
             </div >
+
             <Divider />
         </>
 
     )
-}
+})

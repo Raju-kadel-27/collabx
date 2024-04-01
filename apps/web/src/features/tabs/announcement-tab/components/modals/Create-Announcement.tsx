@@ -44,8 +44,6 @@ const FormatData = ({ channelId, priority, userId, title, content }: FormatDataP
 
 export const CreateAnnouncement = React.forwardRef((props, ref) => {
 
-    console.log({ ref });
-
     const toast = useToast();
 
     const [createAnnouncement, {
@@ -61,7 +59,6 @@ export const CreateAnnouncement = React.forwardRef((props, ref) => {
         formState: { errors },
     } = useForm<any>()
 
-
     const onSubmit = async (data: OnsubmitProps) => {
         try {
             const { content, priority, title } = data;
@@ -73,13 +70,10 @@ export const CreateAnnouncement = React.forwardRef((props, ref) => {
 
             const response = await createAnnouncement(formatted);
 
-            // console.log({ response })
-            // console.log('******* Creating response data ********88')
-
             if (response?.data?._id) {
                 toast({
                     title: 'Successfully announced !!',
-                    description:"We hope people will be informed.",
+                    description: "We hope people will be informed.",
                     status: 'success',
                     duration: 6000,
                     isClosable: true,
@@ -96,9 +90,16 @@ export const CreateAnnouncement = React.forwardRef((props, ref) => {
             }
 
         } catch (error) {
-            console.log({ error })
+            console.log({ error });
+            toast({
+                title: 'Something went wrong !!',
+                description: "Update failed",
+                status: 'error',
+                duration: 6000,
+                isClosable: true,
+            })
         }
-     }
+    }
 
     return (
         <form
@@ -106,7 +107,6 @@ export const CreateAnnouncement = React.forwardRef((props, ref) => {
             onSubmit={handleSubmit(onSubmit)}>
 
             <SimpleGrid className='w-full' alignItems={'center'} columns={2} spacing={6}>
-
                 <FormControl isInvalid={errors.name}>
                     <FormLabel htmlFor='title'>Title</FormLabel>
                     <Input
@@ -115,8 +115,8 @@ export const CreateAnnouncement = React.forwardRef((props, ref) => {
                         placeholder='Title of announcement'
                         {...register('title', {
                             required: 'This is required',
-                            minLength: { value: 4, message: 'Min length is 4' },
-                            maxLength: { value: 80, message: 'Max length is 80' },
+                            minLength: { value: 10, message: 'Min length is 10' },
+                            maxLength: { value: 100, message: 'Max length is 300' },
                         })}
                     />
                     <FormErrorMessage>

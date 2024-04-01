@@ -83,7 +83,7 @@ export const Table =
 
                                             <tbody >
                                                 {
-                                                    fileList.map((file: FileList) => (
+                                                    fileList.map((file: FileList,i) => (
                                                         <tr className="border-b my-2">
 
                                                             <td className="p-3 pl-0">

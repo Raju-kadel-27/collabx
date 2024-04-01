@@ -8,13 +8,16 @@ import {
     Button,
     SimpleGrid,
     Select,
-    Textarea
+    Textarea,
+    useToast
 } from '@chakra-ui/react';
+import { useUpdateAnnouncementMutation } from '../../redux/apis/AnnouncementApiSlice';
 
 export const UpdateAnnouncement = React.forwardRef((props, ref) => {
 
-    console.log('***************** Update announcement rerendered *************');
-    console.log(ref.current, 'announcementRef.current');
+    const toast = useToast();
+
+    const [updateAnnouncement, { isLoading }] = useUpdateAnnouncementMutation();
 
     const {
         handleSubmit,
@@ -24,14 +27,57 @@ export const UpdateAnnouncement = React.forwardRef((props, ref) => {
         formState: { errors, isSubmitting },
     } = useForm<any>()
 
-    function onSubmit() {
-        console.log('onsubmit clicked now...')
-        console.log({formState});
+    const onSubmit = async (formData: any) => {
+        try {
+
+            console.log({ formData });
+
+            console.log(ref.current._id, 'ref.current._id');
+
+            let payload = {
+                announcementId: ref.current._id,
+                fieldsToUpdate: formData
+            }
+
+            const response = await updateAnnouncement(payload);
+
+            console.log({ response });
+
+            if (response?.data?._id) {
+                toast({
+                    title: 'Updated Successfully',
+                    status: 'success',
+                    duration: 6000,
+                    isClosable: true,
+                })
+            } else {
+                toast({
+                    title: 'Update Failed',
+                    status: 'error',
+                    duration: 6000,
+                    isClosable: true,
+                })
+            }
+        }
+        catch (error) {
+            console.log({ error })
+            toast({
+                title: 'Something went up.',
+                status: 'error',
+                duration: 6000,
+                isClosable: true,
+            })
+        }
     }
+
 
     useEffect(() => {
 
         console.log('inside update use-effect inside form now')
+
+        console.log(ref.current._id, 'ref.current._id');
+
+        setValue('_id', ref.current._id);
 
         setValue('title', ref.current.title);
 
@@ -57,8 +103,8 @@ export const UpdateAnnouncement = React.forwardRef((props, ref) => {
                         placeholder='Title of announcement'
                         {...register('title', {
                             required: 'This is required',
-                            minLength: { value: 4, message: 'Min length is 4' },
-                            maxLength: { value: 20, message: 'Max length is 20' },
+                            minLength: { value: 10, message: 'Min length is 10' },
+                            maxLength: { value: 100, message: 'Max length is 100' },
                         })}
                     />
                     <FormErrorMessage>
@@ -68,10 +114,10 @@ export const UpdateAnnouncement = React.forwardRef((props, ref) => {
 
                 <FormControl isInvalid={errors.name}>
                     <FormLabel htmlFor='name'>Priority</FormLabel>
-                    <Select 
-                    defaultValue={ref.current.priority} 
-                    bg='gray.100'
-                     placeholder='Select priority'>
+                    <Select
+                        defaultValue={ref.current.priority}
+                        bg='gray.100'
+                        placeholder='Select priority'>
                         <option value='high'>High</option>
                         <option value='medium'>Medium</option>
                         <option value='low'>Low</option>
@@ -90,8 +136,8 @@ export const UpdateAnnouncement = React.forwardRef((props, ref) => {
                     size='sm'
                     {...register('content', {
                         required: 'This is required',
-                        minLength: { value: 10, message: 'Min length is 4' },
-                        maxLength: { value: 200, message: 'Max length is 200' },
+                        minLength: { value: 10, message: 'Min length is 10' },
+                        maxLength: { value: 400, message: 'Max length is 400' },
                     })}
                 />
                 <FormErrorMessage>
@@ -104,7 +150,7 @@ export const UpdateAnnouncement = React.forwardRef((props, ref) => {
                 borderRadius={'initial'}
                 mt={8}
                 colorScheme='messenger'
-                isLoading={isSubmitting}
+                isLoading={isLoading}
                 type='submit'>
                 Submit
             </Button>

@@ -10,6 +10,7 @@ import { useSelector } from "react-redux";
 import { userSelector } from "@/features/authentication/redux/slices/userSlice";
 
 type ReplyPayload = {
+    postId: string;
     ReplierId: string;
     content: string;
     parentId: string;
@@ -17,6 +18,7 @@ type ReplyPayload = {
 }
 
 export const ReplyInput = ({ postId }: { postId: string }) => {
+
     const user = useSelector(userSelector);
 
     const toast = useToast();
@@ -27,7 +29,8 @@ export const ReplyInput = ({ postId }: { postId: string }) => {
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setReply(e.target.value);
-    }
+    };
+
     const handleReply = async (e: React.MouseEvent<HTMLButtonElement>) => {
         try {
             console.log(e.target);
@@ -42,7 +45,7 @@ export const ReplyInput = ({ postId }: { postId: string }) => {
             const response = await addPostReplies(payload)
             console.log({ response });
             console.log('Direct response from server info');
-            if(replyError){
+            if (replyError) {
                 toast({
                     title: 'Error occured.',
                     description: "Failed to add reply",
@@ -62,31 +65,33 @@ export const ReplyInput = ({ postId }: { postId: string }) => {
             })
         }
     };
+
     return (
-        <div>
-            <div className="flex space-x-2 items-center">
+        <div className="w-full mt-3 p-2">
+            {/* <div className="flex space-x-2 items-center">
                 <Avatar size={'sm'} name="Raju kadel" />
                 <label>Raju kadel</label>
             </div>
-            <div className="w-full flex items-center space-x-2">
+            <div className="w-full  flex items-center space-x-2">
                 <Input
-                    className="w-60"
                     onChange={handleChange}
-
                     variant='flushed'
-                    placeholder='Flushed' />
+                    px={4}
+                    placeholder='Add a reply' />
                 <Button
-                    className="w-fit hover:cursor-pointer px-1"
-                    bg={'black'}
+                    className="w-fit font-lato font-thin text-sm hover:cursor-pointer px-1"
+                    bg={'gray.700'}
+                    h={8}
+                    w={14}
+                    fontSize={'small'}
+                    fontWeight={'sm'}
                     rounded={'none'}
-                    _hover={{
-                        bg: 'black'
-                    }}
-                    onClick={handleReply}
-                    colorScheme="blue">
+                    _hover={{ bg: 'black' }}
+                    colorScheme="black"
+                    onClick={handleReply} >
                     Reply
                 </Button>
-            </div>
+            </div> */}
         </div>
     )
 }

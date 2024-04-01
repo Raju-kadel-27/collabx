@@ -1,9 +1,9 @@
 import React from 'react'
-import { CanvasContainer } from './CanvasContainer'
+import { tainer } from './tainer'
 
 export const CanvasSdk = () => {
   return (
     <div></div>
-    // <CanvasContainer />
+    // <tainer />
   )
 }

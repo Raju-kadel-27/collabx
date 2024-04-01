@@ -1,6 +1,6 @@
 import './index.css';
-import { Divider, Tag, TagLabel, TagRightIcon, HStack, Avatar } from "@chakra-ui/react";
-import { MdOutlineChevronRight, MdSettings } from "react-icons/md";
+import { Avatar, Divider, Tag, TagLabel } from "@chakra-ui/react";
+import { MdOutlineChevronRight } from "react-icons/md";
 import { HiMiniChevronDown } from "react-icons/hi2";
 import { IoPersonAddOutline } from "react-icons/io5";
 import { MdOutlinePersonSearch } from "react-icons/md";
@@ -10,7 +10,11 @@ import { MessageContent } from './MessageContent';
 import { MessageInput } from "./MessageInput";
 import { ModalProvider } from '@/components/ui/modal';
 import { ManageChannel } from './ManageChannel';
-import { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { useGetAllPostsQuery } from '../redux/apis/PostApiSlice';
+import { PulseLoader } from 'react-spinners';
+import { useParams } from 'react-router';
+import { Link } from 'react-router-dom';
 
 const AboutSection = () => {
     return (
@@ -22,11 +26,11 @@ const AboutSection = () => {
                 <HiMiniChevronDown size={18} color={'black'} />
             </div>
 
-            <div className=' bg-slate-100 py-6 px-2'>
+            <div className=' bg-slate-200 py-6 px-2'>
                 <h1 className='font-semibold '>Topic</h1>
-                <p className="font-lato">Track and coordinate social media.</p>
+                <p className="font-lato"> coordinate social media.</p>
             </div>
-            <div className=' bg-slate-100 px-2 pb-4'>
+            <div className=' bg-slate-200 px-2 pb-4'>
                 <h1 className='font-semibold '>Description</h1>
                 <p className="font-lato">Home of the social media team</p>
             </div>
@@ -45,11 +49,14 @@ const IconRenderer = () => {
             </div>
 
             <div>
-                <div className='bg-green-300 hover:cursor-pointer rounded-full w-9 h-9 grid place-items-center'>
-                    <IoCallOutline size={22} color={'black'} />
+                {/* <Link to={'/room/mesh/join/12345'}> */}
+                <Link to={'/room/sfu/join/12345'}>
+                    <div className='bg-green-300 hover:cursor-pointer rounded-full w-9 h-9 grid place-items-center'>
+                        <IoCallOutline size={22} color={'black'} />
 
-                </div>
-                <p className='text-sm mt-1 text-center font-lato'>Call</p>
+                    </div>
+                    <p className='text-sm mt-1 text-center font-lato'>Call</p>
+                </Link>
             </div>
 
             <div>
@@ -63,7 +70,10 @@ const IconRenderer = () => {
     )
 }
 
-const StatInfo = ({ title, count }: { title: string; count: number }) => {
+const StatInfo = (
+    { title, count }:
+        { title: string; count: number }
+) => {
     return (
         <>
             <Divider className="mt-[-7px]" />
@@ -78,51 +88,85 @@ const StatInfo = ({ title, count }: { title: string; count: number }) => {
             </p>
         </>
     )
-}
+};
 
-export const ConversationLayout = () => {
+export default function ConversationLayout() {
 
+    const { teamId, channelId } = useParams()
+    console.log({ teamId, channelId })
+
+    const containerRef = useRef(null);
     const [open, setOpen] = useState<boolean>(false);
-
     const handleClickTag = (e: React.MouseEvent<HTMLParagraphElement>) => {
         console.log({ e })
         setOpen((prev: boolean) => !prev)
-    }
+    };
+    const { data,
+        isLoading,
+        isError,
+        error,
+    } = useGetAllPostsQuery(channelId, {
+        skip: !channelId || !teamId
+    });
+    const [serverMessages, setServerMessage] = useState<any>(null);
 
-    const handleClick = (e: React.MouseEvent<HTMLInputElement>) => {
-        try {
-            console.log('Logging into the main console');
-            try {
-                console.log('Preparing the backend apis for thr nfts')
-            } catch (error) {
-                console.log('Hitting api backends system')
-            }
-        } catch (error) {
-            console.log({ error })
+    useEffect(() => {
+        setServerMessage(data);
+    }, [data])
+    const scrollToBottom = () => {
+        if (containerRef.current) {
+            containerRef.current.scrollTop = containerRef.current.scrollHeight;
         }
+    };
+    useEffect(() => {
+        scrollToBottom();
+    }, [serverMessages]);
+
+    console.log({ serverMessages });
+
+    if (isLoading) {
+        return (
+            <div className='flex w-full h-full justify-center p-12 items-center'>
+                <PulseLoader
+                    size={24}
+                    color={'blue'}
+                />
+            </div>
+        )
+    }
+    if (
+        isError &&
+        error
+    ) {
+        return (
+            <div className='w-full h-full font-lato text-red-500 text-xs'>
+                <p>Something went up</p>
+                <p>{error?.message}</p>
+            </div>
+        )
     }
 
     return (
         <>
             <div className="grid grid-cols-12 h-full">
-
-                {/* grid-cols-9 */}
                 <div className="col-span-9">
-                    <div className="h-[75vh] overflow-y-auto">
-                        <MessageContent />
-                        <MessageContent />
-                        <MessageContent />
-                        <MessageContent />
-                        <MessageContent />
-                        <MessageContent />
-                        <MessageContent />
+                    <div
+                        ref={containerRef}
+                        className="h-[75vh] scroll-smooth overflow-y-auto">
+                        {
+                            serverMessages?.map((message: string, i) => (
+                                <React.Fragment key={i}>
+                                    <MessageContent
+                                        message={message}
+                                    />
+                                </React.Fragment>
+                            ))
+                        }
                     </div>
                     <div>
                         <MessageInput />
                     </div>
                 </div>
-
-                {/* grid-cols-3 */}
                 <div className="col-span-3 h-[75vh] w-full border-l border-1 border-gray-100">
                     <Tag
                         size='lg'
@@ -138,28 +182,19 @@ export const ConversationLayout = () => {
                             ml={-1}
                             mr={2}
                         />
-                        <TagLabel display={'flex'} alignItems={'center'}>
+
+                        <TagLabel className='w-full ml-5' marginLeft={'auto'} display={'flex'} alignItems={'center'}>
                             Raju
                             <FaCircle size={8} className='mx-2' color='green' />
                         </TagLabel>
                     </Tag>
-                    <HStack my={4} spacing={4}>
-                        {['sm', 'md', 'lg'].map((size) => (
-                            <Tag size={size} key={size} variant='outline' colorScheme='blue'>
-                                <TagLabel>Blue</TagLabel>
-                                <TagRightIcon as={MdSettings} />
-                            </Tag>
-                        ))}
-                    </HStack>
 
                     <div className="h-20 w-full my-2 rounded-lg">
                         <IconRenderer />
                     </div>
-
                     <div className="h-60 w-full mt-2 ">
                         <AboutSection />
                     </div>
-
                     <div className='my-5' >
                         <StatInfo title='Members' count={22} />
                         <StatInfo title='Organization' count={22} />
@@ -168,7 +203,6 @@ export const ConversationLayout = () => {
                     </div>
                 </div>
             </div>
-
             <ModalProvider
                 title='Manage your Channel'
                 open={open}

@@ -1,14 +1,14 @@
+import { useParams } from "react-router";
 import { Table } from "./Table";
 
-    interface FileList {
-        name: string;
-        size: string;
-        createdAt: string;
-        modifiedBy: string;
-        sharedWith: string;
-        type: string;
-    }
-
+interface FileList {
+    name: string;
+    size: string;
+    createdAt: string;
+    modifiedBy: string;
+    sharedWith: string;
+    type: string;
+}
 const fileList =
     [
         {
@@ -61,20 +61,18 @@ const fileList =
         },
 
     ];
-
-
 const FileList = ({ fileList }: any) => {
     return (
         <>
-        <Table fileList={fileList} />
+            <Table fileList={fileList} />
         </>
     )
-}
+};
+export default function FilesTab() {
 
-export const FilesTab = () => {
     return (
         <div className="space-y-2 px-6 ">
             <FileList fileList={fileList} />
         </div>
     )
-}
+};

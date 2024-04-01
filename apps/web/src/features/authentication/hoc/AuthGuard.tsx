@@ -17,13 +17,12 @@ export const AuthGuard = () => {
         isLoading,
     }] = useRefreshTokenMutation();
 
-    console.log({isUninitialized,isLoading})
 
     useEffect(() => {
         const verifyRefreshToken = async () => {
-            console.log('verifyRefreshToken(()) calledxxxx')
+            // console.log('verifyRefreshToken(()) calledxxxx')
             try {
-                console.log('verifyRefreshToken(()) calledxxx inside')
+                // console.log('verifyRefreshToken(()) calledxxx inside')
                 await refreshToken();
 
             } catch (error) {

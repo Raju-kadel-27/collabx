@@ -35,7 +35,7 @@ export class ClassCalendar extends Component {
     };
 
     onEventResize = (data) => {
-        console.log({ data }, 'onresize')
+        // console.log({ data }, 'onresize')
         const { start, end } = data;
 
         this.setState((state) => {

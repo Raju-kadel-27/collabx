@@ -1,37 +1,29 @@
-import React from 'react';
-import {
-    Chart as ChartJS,
-    RadialLinearScale,
-    PointElement,
-    LineElement,
-    Filler,
-    Tooltip,
-    Legend,
-} from 'chart.js';
-import { Radar } from 'react-chartjs-2';
+import Chart from 'chart.js/auto'
 
-ChartJS.register(
-    RadialLinearScale,
-    PointElement,
-    LineElement,
-    Filler,
-    Tooltip,
-    Legend
-);
+(async function() {
+  const data = [
+    { year: 2010, count: 10 },
+    { year: 2011, count: 20 },
+    { year: 2012, count: 15 },
+    { year: 2013, count: 25 },
+    { year: 2014, count: 22 },
+    { year: 2015, count: 30 },
+    { year: 2016, count: 28 },
+  ];
 
-export const data = {
-    labels: ['Thing 1', 'Thing 2', 'Thing 3', 'Thing 4', 'Thing 5', 'Thing 6'],
-    datasets: [
-        {
-            label: '# of Votes',
-            data: [2, 9, 3, 5, 2, 3],
-            backgroundColor: 'rgba(255, 99, 132, 0.2)',
-            borderColor: 'rgba(255, 99, 132, 1)',
-            borderWidth: 1,
-        },
-    ],
-};
-
-export function Radar() {
-    return <Radar data={data} />;
-}
+  new Chart(
+    document.getElementById('acquisitions'),
+    {
+      type: 'bar',
+      data: {
+        labels: data.map(row => row.year),
+        datasets: [
+          {
+            label: 'Acquisitions by year',
+            data: data.map(row => row.count)
+          }
+        ]
+      }
+    }
+  );
+})();

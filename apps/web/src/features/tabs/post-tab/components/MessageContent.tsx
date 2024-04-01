@@ -41,7 +41,7 @@ export const MessageContent =
                                 </div>
                             </div>
                             <div className='py-1'>
-                                <ReactionButton postId={message?._id} />
+                                {/* <ReactionButton postId={message?._id} /> */}
                             </div>
 
                             {/* Uploaded files ui */}
@@ -78,7 +78,7 @@ export const MessageContent =
                         </div>
                     </div>
                 </div>
-                <Divider/>
+                <Divider />
             </>
 
         )

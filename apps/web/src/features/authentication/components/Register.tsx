@@ -64,7 +64,7 @@ const Blur = (props) => {
     )
 }
 
-export const Register = () => {
+export default function Register() {
 
     const dispatch = useDispatch();
     const navigateTo = useNavigate();

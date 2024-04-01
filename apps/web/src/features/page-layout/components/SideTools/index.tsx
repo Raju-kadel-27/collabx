@@ -5,7 +5,6 @@ import { IoCalendarOutline } from "react-icons/io5";
 import { IoPeopleSharp } from "react-icons/io5";
 import { IoCallOutline } from "react-icons/io5";
 import { FaRegFile } from "react-icons/fa";
-
 import { Link } from "react-router-dom";
 import { useLocation } from 'react-router-dom';
 import { getActiveIconType } from "../../utils/getActiveIconType";
@@ -104,9 +103,9 @@ const IconRenderer = () => {
     return (
         <>
             {
-                IconDetails.map((icon) =>
+                IconDetails.map((icon, i) =>
                 (
-                    <div className="[&>.tooltip]:hover:opacity-100 h-14 w-16 cursor-pointer p-3">
+                    <div key={i} className="[&>.tooltip]:hover:opacity-100 h-14 w-16 cursor-pointer p-3">
 
                         <Link to={icon.route}>
                             <div className="border-gray pointer-events-auto absolute flex h-10 w-10 items-center justify-center rounded-full text-gray-200 shadow duration-100 hover:bg-gray-700">
@@ -121,7 +120,7 @@ const IconRenderer = () => {
                             </div>
                         </Link>
 
-                        <div className="tooltip absolute z-50 mt-3 ml-14 w-max rounded-md bg-gray-700 p-1 text-xs text-white opacity-0 shadow-md duration-200">Search Documents</div>
+                        <div className="tooltip absolute z-50 mt-3 ml-14 w-max rounded-md bg-gray-700 p-1 text-xs text-white opacity-0 shadow-md duration-200">nts</div>
                     </div>
                 ))
             }
@@ -129,14 +128,12 @@ const IconRenderer = () => {
     )
 }
 
-
-
-
 export const SideTools = () => {
 
     return (
         <div className="h-screen absolute left-0 bg-gray-100">
-            <div className="fixed left-0 min-h-screen select-none border border-r-1 border-[#441329] bg-[#37051b] shadow">
+            <div className="fixed left-0 min-h-screen select-none border border-r-1 border-gray-800 bg-gray-900 shadow">
+            {/* <div className="fixed left-0 min-h-screen select-none border border-r-1 border-[#441329] bg-[#3F0E40] shadow"> */}
                 <IconRenderer />
             </div>
         </div>

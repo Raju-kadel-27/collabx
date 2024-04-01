@@ -1,6 +1,5 @@
 import { BsEmojiNeutral } from "react-icons/bs";
 import { BsReply } from "react-icons/bs";
-import { IoMdHappy } from "react-icons/io";
 import { IoSadOutline } from "react-icons/io5";
 import { FaHeart } from "react-icons/fa6";
 import { PiHandsClapping } from "react-icons/pi";
@@ -15,7 +14,6 @@ import {
     PopoverCloseButton,
     Button,
     useToast,
-    Divider,
 } from '@chakra-ui/react';
 import { useIncreamentPostReactionMutation } from "../redux/apis/PostApiSlice";
 import { useSelector } from "react-redux";
@@ -32,6 +30,12 @@ type ReplyPayload = {
     postId: string;
     toId: number;
     from: string
+}
+
+type ReplayPayload={
+    totalCount: string;
+    postId: string;
+    
 }
 // write single responsibility function
 // ahead of 99% of developers
@@ -75,6 +79,14 @@ export const ReactionButton = ({ postId }: { postId: string }) => {
             })
         }
     };
+    const manageReactionButton = () => {
+        console.log('Manage Reaction Button in Nepal')l
+        let isAdmin = false;
+        if (isAdmin) {
+            let isManager = !!isAdmin;
+            console.log({ isManager });
+        }
+    }
     return (
         <>
             <div className="flex items-center space-x-2">
@@ -109,10 +121,10 @@ export const ReactionButton = ({ postId }: { postId: string }) => {
                     <p className="font-lato text-black font-thin">27 replies</p>
                 </div>
             </div>
-            <Divider className="pb-2 mb-2" />
+            {/* <Divider className="pb-2 mb-2" /> */}
             <ReplyInput
-             postId={postId} />
-            <Divider colorScheme="gray" />
+                postId={postId} />
+            {/* <Divider colorScheme="gray" /> */}
         </>
     )
 }
