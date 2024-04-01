@@ -1,0 +1,13 @@
+export * as AuthController from './AuthController';
+export * as ChatController from './ChatController';
+export * as MessageController from './MessageController';
+export * as UserController from './UserController';
+export * as TeamController from "./TeamController";
+export * as FileController from './FileManagerController';
+export * as TableController from './TableController';
+export * as DeltaController from './DeltaController';
+export * as PostController from './PostController';
+export * as TaskController from './TaskController';
+export * as ChannelController from './ChannelController';
+export * as PollController from './PollController';
+export * as AnnouncementController from './AnnouncementController';
