@@ -25,6 +25,11 @@ export class Redis {
     async send(message: string) {
         await this.client.rPush(NOTIFICATION_QUEUE, message);
     }
+
+    async delaySend(message: string) {
+        //code to add
+        await this.client.rPush(NOTIFICATION_QUEUE, message);
+    }
 }
 
 
