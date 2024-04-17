@@ -68,6 +68,7 @@ export class QueueManager {
 
                 await this.connection.close();
 
+                console.log("Consider adding some exponential backoff");
                 console.log('Connection to RabbitMQ closed');
 
             }
