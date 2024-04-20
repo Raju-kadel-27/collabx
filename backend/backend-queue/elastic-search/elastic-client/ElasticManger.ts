@@ -19,7 +19,8 @@ export class ElasticManager {
 
     async createIndex(indexName: string) {
         try {
-
+            console.log("Creating index")
+            console.log("Loading...")
         } catch (error) {
             console.error({ error })
         }
