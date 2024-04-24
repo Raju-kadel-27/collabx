@@ -40,7 +40,6 @@ const UserSchema = new mongoose.Schema(
             required: true,
             default: false,
         },
-
         teams: [
             {
                 type: mongoose.Schema.Types.ObjectId,
@@ -75,3 +74,5 @@ const UserSchema = new mongoose.Schema(
 const UserModel = mongoose.model<IUser>('User', UserSchema);
 
 export default UserModel;
+
+// complex user member scaling issues
