@@ -1,92 +1,40 @@
 import { Box, Stack, Text, Heading, Divider } from "@chakra-ui/layout";
 import { Avatar, AvatarBadge } from "@chakra-ui/react";
 import { useSelector, useDispatch } from "react-redux";
-import { getSender } from "../helpers/ChatLogics";
+import { getSender } from "../utils/ChatLogics";
 import { userSelector } from "../../authentication/redux/slices/userSlice";
 import { PulseLoader } from "react-spinners"
 import { handleSelectedChat, textChatSelector } from "../redux/slices/ChatSlice";
-import { SelectUsers } from "./SelectUsers";
+// import { SelectUsers } from "./SelectUsers";
 import { useState } from 'react';
 import {
     useAccessChatMutation,
     useFetchAllChatsQuery,
-    useFetchAllUsersQuery
+    // useFetchAllUsersQuery
 } from "../redux/apis/chatApiSlice";
+import {useGetChannelMembersQuery} from "@/features/channels/redux/apis/ChannelApiSlice";
 
 export const MyChats = () => {
-
     const [searchText, setSearchText] = useState<string>('');
-
-    const dispatch = useDispatch()
-
+    const dispatch = useDispatch();
     const { selectedChat } = useSelector(textChatSelector, (prev, next) => prev === next);
-
-    console.log({ selectedChat });
-
     const user = useSelector(userSelector, (prev, next) => prev === next);
 
-    const {
-        data,
-        isLoading,
-        isSuccess,
-        isError,
-        error
-    } = useFetchAllUsersQuery('', '')
-
-    const [accessChat, {
-        // isLoading,
-        // isError,
-        // isSuccess,
-        // error
-    }] = useAccessChatMutation()
-
-    const { data: allChats,
-        isLoading: isChatLoading,
-        isError: isChatError,
-        error: chatError
-    } = useFetchAllChatsQuery({ userId: user?._id || '' })
-
-    console.log({ user }, 'user from mychats');
-
-    console.log({
-        allChats,
-        isChatLoading,
-        isChatError,
-        chatError
-    })
-
-    console.log('Generating audio-video-call-app');
-
-    console.log({
-        data,
-        isLoading,
-        isSuccess
-    })
-
-    console.log('getting all the users array from the list')
-
+    const { data: allChats} = useFetchAllChatsQuery({ userId: user?._id || '' });
+    const {}=useGetChannelMembersQuery({teamId,channelId},{skip:!channelId || !teamId});
+    const [accessChat] = useAccessChatMutation();
+    
     const handleAccessChat = async (id: string) => {
         try {
-
-            console.log({ id });
-
             let payload = {
                 peerId: id,
                 ownId: user._id
             }
-
-            const response = await accessChat(payload);
-
-            console.log({ response });
-
-            if (isError) {
-                console.log({ error })
-            }
-
+            const _accessChat = await accessChat(payload);
+          console.log({_accessChat});
         } catch (error) {
             console.log({ error })
         }
-
     }
 
     // const fetchChats = async () => {
