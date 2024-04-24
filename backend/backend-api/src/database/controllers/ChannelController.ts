@@ -1,7 +1,21 @@
 import Container from "typedi";
-import { Request, Response, NextFunction } from 'express'
+import { Request, Response, NextFunction } from 'express';
 import { ChannelService } from "../services";
 
+export const getAllMembers =
+  async (
+    req: Request,
+    res: Response,
+    next: NextFunction) => {
+    try {
+      const channelService = Container.get(ChannelService);
+      const { members } = await channelService.GetAllMembers(req.body);
+      res.status(200).json(members);
+    } catch (error) {
+      console.log("Error occured in the main flow of the current stack trace %-o")
+      next(error)
+    }
+  }
 
 export const createChannel =
   async (
@@ -9,7 +23,6 @@ export const createChannel =
     res: Response,
     next: NextFunction) => {
     try {
-      console.log('CreateChannel controller called ()')
       const channelService = Container.get(ChannelService);
       const { created } = await channelService.CreateChannel(req.body);
       res.status(200).json(created);
@@ -18,7 +31,6 @@ export const createChannel =
       next(error)
     }
   }
-
 
 export const updateChannelName =
   async (
@@ -31,14 +43,12 @@ export const updateChannelName =
         channelId: req.params.channelId,
         name: req.body.name
       }
-      console.log({ payload });
       const { updated } = await channelService.UpdateName(payload);
       res.status(200).json(updated);
     } catch (error) {
       next(error)
     }
   }
-
 
 export const addChannelMember =
   async (
@@ -165,3 +175,4 @@ export const deleteChannel =
       next(error)
     }
   }
+
