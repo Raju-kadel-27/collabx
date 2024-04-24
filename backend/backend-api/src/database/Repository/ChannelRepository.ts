@@ -2,6 +2,7 @@ import { Inject, Service } from "typedi";
 import { Model } from "mongoose";
 import { IChannel } from "../models/Channel";
 import { ITeam } from "../models/Team";
+import { GetAllMembers } from "../services/channelService";
 
 interface ChannelId {
     channelId: string;
@@ -41,10 +42,14 @@ export class ChannelRepository {
         @Inject('teamModel') private teamModel: Model<ITeam>
     ) { }
 
-    async CreateChannel(payload: CreateChannel) {
-        console.log({payload});
-        const { name, channelMode, teamId, admins, members, systemPreference, managers, theme } = payload;
+    async GetAllMembers({channelId,teamId}: GetAllMembers) {
+        return await this.channelModel.find({
+            $and:[{channelId},{teamId}]
+        }).populate("users")
+    }
 
+    async CreateChannel(payload: CreateChannel) {
+        const { name, channelMode, teamId, admins, members, systemPreference, managers, theme } = payload;
         const channel = await this.channelModel.create({
             name,
             channelMode,
@@ -55,17 +60,13 @@ export class ChannelRepository {
             managers,
             theme
         })
-        console.log({channel});
         await this.teamModel.findByIdAndUpdate(
             teamId,
             { $push: { channels: channel._id } }
         )
-        console.log({channel});
-        console.log('Newly created channel');
         return channel;
-
     }
-
+  
     async UpdateName(payload: UpdateName) {
         const { channelId, name } = payload;
         return await this.channelModel.findByIdAndUpdate(
