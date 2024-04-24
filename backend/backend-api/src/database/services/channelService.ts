@@ -14,6 +14,9 @@ interface CreateChannel {
 interface ChannelId {
   channelId: string;
 }
+export interface GetAllMembers extends ChannelId {
+  teamId: string;
+}
 interface UpdateName extends ChannelId {
   name: string
 }
@@ -43,12 +46,14 @@ interface Channel {
 export class ChannelService {
   constructor(@Inject() private channelRepository: ChannelRepository) { }
 
+  async GetAllMembers({teamId,channelId}: GetAllMembers) {
+    const members = await this.channelRepository.GetAllMembers({teamId,channelId})
+    return { members }
+  }
   async CreateChannel(payload: CreateChannel) {
     const result = await this.channelRepository.CreateChannel(payload)
-    console.log({ result })
     return { created: result }
   }
-
   async UpdateName(payload: UpdateName) {
     const { channelId, name } = payload;
     const result = await this.channelRepository.UpdateName({ channelId, name })
