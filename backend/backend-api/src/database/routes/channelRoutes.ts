@@ -15,5 +15,5 @@ export default (app: Router) => {
     route.post('/add/tab/:channelId', ChannelController.addChannelTab);
     route.post('/remove/tab/:channelId', ChannelController.removeChannelTab);
     route.post('/delete/:channelId', ChannelController.deleteChannel);
-
+    route.get("/members",ChannelController.getAllMembers)
 }
