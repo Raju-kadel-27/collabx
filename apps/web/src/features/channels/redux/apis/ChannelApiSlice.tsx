@@ -1,23 +1,29 @@
 import { apiSlice } from "@/app/api/apiSlice";
-// import { handleChats, handleUser } from "./chatSlice";
 
-console.log("Members channels");
 
 export const channelApiSlice = apiSlice.injectEndpoints({
     endpoints: builder => ({
 
-        // createChannel: builder.mutation({
-        //     query: (payload: any) => ({
-        //         url: '/api/channel/create',
-        //         method: 'POST',
-        //         body: payload
-        //     }),
-        //     invalidatesTags: (result: any, error: any, arg: any) => [
-        //         {
-        //             type: 'TeamWithChannels',
-        //             id: 'LIST'
-        //         }],
-        // }),
+        getChannelMembers:builder.query({
+            query:({teamId,channelId})=>({
+                url:`/api/channel/allmembers/${teamId}/${channelId}`,
+                method: 'GET',
+            })
+        }),
+
+        createChannel: builder.mutation({
+            query: (payload: any) => ({
+                url: '/api/channel/create',
+                method: 'POST',
+                body: payload
+            }),
+            //@ts-ignore
+            invalidatesTags: (result,error,arg) => [
+                {
+                    type: 'TeamWithChannels',
+                    id: 'LIST'
+                }],
+        }),
 
         updateChannelName: builder.mutation({
             query: (payload: any) => ({
@@ -36,7 +42,6 @@ export const channelApiSlice = apiSlice.injectEndpoints({
                 }
             }
         }),
-
 
         addChannelAdmin: builder.mutation({
             query: (payload: any) => ({
@@ -169,7 +174,8 @@ export const channelApiSlice = apiSlice.injectEndpoints({
 
 
 export const {
-    // useCreateChannelMutation,
+    useCreateChannelMutation,
+    useGetChannelMembersQuery,
     useUpdateChannelNameMutation,
     useAddChannelAdminMutation,
     useRemoveChannelAdminMutation,
