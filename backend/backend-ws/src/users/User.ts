@@ -3,6 +3,8 @@ import { validateRoom } from "../db/validateRoom";
 import { RedisSubscriptionManager } from "../subscriptions/RedisSubscriptionManager";
 import type { WebSocket } from 'ws';
 
+// @TODO (Try to integrate HASURA for efficient query)
+
 const WS_READY = 'WS_READY';
 
 interface m {
@@ -94,6 +96,8 @@ export class User {
         switch (message.type) {
 
             case MESSAGE_TYPE.CHAT_MESSAGE:
+                console.log('######################### CHAT__MESSAGE__CALLED ####################',{message})
+
                 const subscriptions = this.subscriptions.map((x) =>
                     x.room === message.payload.room &&
                     x.type === message.payload.type
@@ -115,9 +119,7 @@ export class User {
                         return;
                     }
                 };
-
                 console.log(' $$$ Passed__all__the__test $$$');
-
                 message.payload.messages.map((m: m) =>
                     RedisSubscriptionManager.getInstance().addChatMessage(
                         this.userId,
@@ -126,9 +128,8 @@ export class User {
                         m
                     )
                 )
-
             case MESSAGE_TYPE.DELETE_MESSAGE:
-                console.log('##DELETE__MESSAGE__CALLED##')
+                console.log('##DELETE__MESSAGE__CALLED##',{message});
                 //TODO: merge the subscription section into a single fn
                 const subscription2 = this.subscriptions.find(
                     (x) =>
@@ -172,6 +173,8 @@ export class User {
                 break;
 
             case MESSAGE_TYPE.SUBSCRIBE:
+                console.log('## SUBSCRIBE__MESSAGE__CALLED##',{message})
+
                 if (
                     this.subscriptions.find((x) =>
                         x.room === message.payload.room &&
