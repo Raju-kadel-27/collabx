@@ -10,15 +10,15 @@ interface Formatted {
 }
 interface IMessageInput {
   client_generated_uuid: string;
-  chat: string;
   room: string;
   type: string;
-  content: string;
+  message: string;
+  message_kind: string;
   user1_last_read_message: string;
   user2_last_read_message: string;
   publicKey: string;
   sender: string;
-};
+}
 interface IDeleteMessage {
   client_generated_uuid: string;
   messageId: string;
@@ -31,7 +31,6 @@ export class MessageService {
   constructor(@Inject() private messageRepository: MessageRepository) { }
 
   async GetAllMessages(chatId: string) {
-
     return await this.messageRepository.fetchMessages(chatId);
   };
 
@@ -61,7 +60,6 @@ export class MessageService {
 
     // version(2) Implementation
     return await this.messageRepository.sendMessage(payload);
-
   };
 
 }
