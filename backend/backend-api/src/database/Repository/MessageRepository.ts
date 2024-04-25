@@ -6,10 +6,10 @@ import { IChat } from "../models/Chat";
 
 interface IMessageInput {
   client_generated_uuid: string;
-  chat: string;
   room: string;
   type: string;
-  content: string;
+  message: string;
+  message_kind: string;
   user1_last_read_message: string;
   user2_last_read_message: string;
   publicKey: string;
@@ -30,10 +30,14 @@ export class MessageRepository {
   ) { }
 
   async fetchMessages(chatId: string) {
-    return await this.messageModel
-      .find({ chat: chatId })
+    console.log("###### Fetch Messages ########", {chatId})
+    const messages= await this.messageModel
+      .find({ room: chatId })
       .populate("sender", "name pic email")
-      .populate("chat");
+      .populate("room");
+
+     console.log({messages});
+     return messages; 
   }
 
   async getMessage(
@@ -56,8 +60,6 @@ export class MessageRepository {
   }
 
   async sendMessage(messageData: IMessageInput) {
-    console.log({ messageData });
-    console.log('Send-message function () is called');
     let message: any = await this.messageModel.create(messageData);
     message = await this.messageModel.populate(
       message,
@@ -66,31 +68,27 @@ export class MessageRepository {
         select: 'name pic email'
       }
     )
-
     message = await this.messageModel.populate(
       message,
       {
-        path: 'chat',
+        path: 'room',
         select: 'chatName isGroupChat chatRoom users latestMessage groupAdmin'
       }
     );
-
     message = await this.userModel.populate(
       message,
       {
         path: "chat.users",
         select: "name",
       })
-
-    let finalMessage = await this.chatModel.findByIdAndUpdate(
-      messageData.chat,
+    await this.chatModel.findByIdAndUpdate(
+      messageData.room,
       {
-        latestMessage: message,
+        //@ts-ignore
+        latestMessage: messageData.message,
       }
     );
-
     return message;
-
   }
 }
 
