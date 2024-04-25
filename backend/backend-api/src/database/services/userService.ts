@@ -5,6 +5,10 @@ interface SearchUserPayload {
     keyword: string;
     userId: string;
 }
+interface GetAllUsers {
+    teamId: string;
+    channelId: string;
+}
 
 export class UserService {
     constructor(
