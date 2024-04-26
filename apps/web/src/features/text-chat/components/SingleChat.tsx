@@ -9,7 +9,7 @@ import {
 } from "@chakra-ui/react";
 import { textChatSelector } from "../redux/slices/ChatSlice";
 import ScrollableChat from "./ScrollableChat";
-import { getSender, getSenderFull } from "../helpers/ChatLogics";
+import { getSender, getSenderFull } from "../utils/ChatLogics";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { MdCall } from 'react-icons/md';
@@ -18,42 +18,40 @@ import { BsThreeDotsVertical } from 'react-icons/bs';
 import { AiOutlineSchedule } from 'react-icons/ai';
 import { useNavigate } from "react-router";
 import { tokenSelector, userSelector } from "../../authentication/redux/slices/userSlice";
-import { MessageInput } from "./MessageInput";
 import { ModalChat } from "./Modal";
 import { useSendMessageMutation } from "../redux/apis/messageApiSlice";
 import { SignalingManager } from "@/features/websocket/SignalingManager";
-// import { getSocket } from "../../../../shared/helpers/socket";
+import { MessagingTools } from "./Tools";
 
-interface Msgpayload {
-    type: 'CHAT_MESSAGE';
-    payload: {
-        room: string;
-        type: 'INDIVIDUAL' | 'GROUP';
-        messages: [
-            {
-                client_generated_uuid: string;
-                user1_last_read_message: string;
-                user2_last_read_message: string;
-                publicKey: string;
-                sender: string;
-                message: string;
-                messageKind: string;
-            }
-        ]
-    }
-}
-
-interface IMessageInput {
-    client_generated_uuid: string;
-    chat: string;
-    room: string;
-    type: string;
-    content: string;
-    user1_last_read_message: string;
-    user2_last_read_message: string;
-    publicKey: string;
-    sender: string;
-}
+// interface Msgpayload {
+//     type: 'CHAT_MESSAGE';
+//     payload: {
+//         room: string;
+//         type: 'INDIVIDUAL' | 'GROUP';
+//         messages: [
+//             {
+//                 client_generated_uuid: string;
+//                 user1_last_read_message: string;
+//                 user2_last_read_message: string;
+//                 publicKey: string;
+//                 sender: string;
+//                 message: string;
+//                 messageKind: string;
+//             }
+//         ]
+//     }
+// }
+// interface IMessageInput {
+//     client_generated_uuid: string;
+//     chat: string;
+//     room: string;
+//     type: string;
+//     content: string;
+//     user1_last_read_message: string;
+//     user2_last_read_message: string;
+//     publicKey: string;
+//     sender: string;
+// }
 
 export const SingleChat = () => {
     const navigateTo = useNavigate()
@@ -61,66 +59,24 @@ export const SingleChat = () => {
     const user = useSelector(userSelector);
     const jwtToken = useSelector(tokenSelector);
     const toast = useToast();
-    const [sendMessage] = useSendMessageMutation();
-
     const [loading, _setLoading] = useState<boolean>(false);
     const [newMessage, setNewMessage] = useState("");
     const [openModal, setModal] = useState(false);
+    const [sendMessage] = useSendMessageMutation();
 
-    var peerUser = null;
-
-    console.log({ user, jwtToken });
-    console.log('CONNECTED USERS : ::smile');
-
-    // useEffect(() => {
-    //     SignalingManager
-    //         .getInstance()
-    //         .updateUuid(user._id, jwtToken)
-
-    //     setTimeout(() => {
-    //         console.log('###############');
-    //         console.log('####Sending message in timeout function');
-    //         console.log('##########');
-
-    //         SignalingManager
-    //             .getInstance()
-    //             .send({
-    //                 type: 'CHAT_MESSAGE',
-    //                 payload: {
-    //                     room: '65aaaec7728f122039d1c106',
-    //                     // room: selectedChat._id,
-    //                     type: 'INDIVIDUAL',
-    //                     messages: [
-    //                         {
-    //                             client_generated_uuid: `${Math.floor(Math.random() * 1224)}65ab429d9640fa543fd77301`,
-    //                             user1_last_read_message: '65ab429d9640fa543fd77301',
-    //                             user2_last_read_message: '65ab429d9640fa543fd77301',
-    //                             publicKey: '65ab429d9640fa543fd77301',
-    //                             sender: user._id,
-    //                             message: `New message from ${Math.random()}`,
-    //                             messageKind: 'text'
-    //                         }
-    //                     ]
-    //                 }
-    //             }
-    //             );
-    //     }, 10000)
-
-    //     console.log('Signaling Manager is initialized.');
-    // }, [])
+    console.log({ user, jwtToken, selectedChat }, "Inside singelChat");
 
     useEffect(() => {
-        let messageId = ""
-
-        SignalingManager
-            .getInstance()
-            .updateUuid(user._id, jwtToken)
-
-        setTimeout(() => {
-            console.log('###############');
-            console.log('####Sending message in timeout function');
-            console.log('##########');
-
+        SignalingManager.getInstance().updateUuid(user._id, jwtToken)
+        console.log('Signaling Manager is initialized.', SignalingManager.getInstance());
+    }, []);
+    let peerUser = null;
+    if (selectedChat) {
+        peerUser = getSenderFull(user, selectedChat?.users)
+    };
+    console.log('Some error occured inside signaling manager');
+    const handleDeleteMessage = async (msgId: string) => {
+        try {
             SignalingManager
                 .getInstance()
                 .send({
@@ -128,54 +84,42 @@ export const SingleChat = () => {
                     payload: {
                         room: '65aaaec7728f122039d1c106',
                         type: 'INDIVIDUAL',
-                        messageId: ''
-
+                        messageId: msgId
                     }
                 }
                 );
-        }, 10000)
-
-        console.log('Signaling Manager is initialized.');
-    }, [])
-
-
-    if (selectedChat) {
-        peerUser = getSenderFull(user, selectedChat?.users)
+        } catch (error) {
+            console.log({ error });
+        }
     };
 
-    console.log('Some error occured inside signaling manager');
-
     const handleSendMessage = async (event: any) => {
-        console.log(event.key, "event.key");
-        let newMessage = 'Raju low wipro'
+        console.log(event, newMessage);
         if (event.key === "Enter" && newMessage) {
             try {
-                console.log('### SignalingManager Instance ###');
                 console.log(SignalingManager.getInstance());
-                SignalingManager
-                    .getInstance()
-                    .send({
-                        type: 'CHAT_MESSAGE',
-                        payload: {
-                            room: selectedChat._id,
-                            type: 'INDIVIDUAL',
-                            messages: [
-                                {
-                                    client_generated_uuid: `${Math.floor(Math.random() * 1224)}65ab429d9640fa543fd77301`,
-                                    user1_last_read_message: '65ab429d9640fa543fd77301',
-                                    user2_last_read_message: '65ab429d9640fa543fd77301',
-                                    publicKey: '65ab429d9640fa543fd77301',
-                                    sender: user._id,
-                                    message: newMessage,
-                                    messageKind: 'text'
-                                }
-                            ]
-                        }
+                const _payload={
+                    type: 'CHAT_MESSAGE',
+                    payload: {
+                        room: selectedChat._id,
+                        type: 'INDIVIDUAL',
+                        messages: [
+                            {
+                                client_generated_uuid: `${Math.floor(Math.random() * 1224)}65ab429d9640fa543fd77301`,
+                                user1_last_read_message: '65ab429d9640fa543fd77301',
+                                user2_last_read_message: '65ab429d9640fa543fd77301',
+                                publicKey: '65ab429d9640fa543fd77301',
+                                sender: user._id,
+                                message: newMessage,
+                                messageKind: 'text'
+                            }
+                        ]
                     }
-                    );
-
-                console.log('Sent message through signaling manager;')
-                // const response = await sendMessage(payload);
+                }
+                SignalingManager.getInstance().send(_payload);
+                console.log('%%%%%%%%%%%%%%%%% Sent message through signaling manager in handleSendMessage %%%%%%%%%%%%%%%%%%%%');
+                // console.log("######### Sending the message inside the database ##########");
+                // const response = await sendMessage(_payload);
                 // console.log({ response });
             } catch (error) {
                 console.log({ error });
@@ -202,31 +146,35 @@ export const SingleChat = () => {
         setNewMessage(newMessage + emoji);
     };
 
-    const typingHandler = (e: any) => {
-        //     setNewMessage(e.target.value);
+    // const typingHandler = (e: any) => {
+    //     console.log("Typing Handler")
+    //     //     setNewMessage(e.target.value);
 
-        //     if (!socketConnected) return;
+    //     //     if (!socketConnected) return;
 
-        //     if (!typing) {
-        //         setTyping(true);
-        //         // socket.emit("typing", selectedChat._id);
-        //     }
-        //     let lastTypingTime = new Date().getTime();
-        //     var timerLength = 3000;
-        //     setTimeout(() => {
-        //         var timeNow = new Date().getTime();
-        //         var timeDiff = timeNow - lastTypingTime;
-        //         if (timeDiff >= timerLength && typing) {
-        //             // socket.emit("stop typing", selectedChat._id);
-        //             setTyping(false);
-        //         }
-        //     }, timerLength);
-    };
+    //     //     if (!typing) {
+    //     //         setTyping(true);
+    //     //         // socket.emit("typing", selectedChat._id);
+    //     //     }
+    //     //     let lastTypingTime = new Date().getTime();
+    //     //     var timerLength = 3000;
+    //     //     setTimeout(() => {
+    //     //         var timeNow = new Date().getTime();
+    //     //         var timeDiff = timeNow - lastTypingTime;
+    //     //         if (timeDiff >= timerLength && typing) {
+    //     //             // socket.emit("stop typing", selectedChat._id);
+    //     //             setTyping(false);
+    //     //         }
+    //     //     }, timerLength);
+    // };
 
     const handleMakeCall = () => {
         // console.log({ peerUser })
         // socket.emit(ACTIONS.CREATE_RINGING_FOR_DUAL, { receiverId: peerUser._id, caller: user })
         navigateTo(`/112233`)
+    }
+    const onChangeMessage = (e:any) => {
+        setNewMessage(e.target.value);
     }
     return (
         <>
@@ -239,16 +187,13 @@ export const SingleChat = () => {
                                 bg={'pink.400'} >
                                 <AvatarBadge boxSize='0.85em' bg='green.500' />
                             </Avatar>
-
                             <Heading
                                 color={'gray.600'}
                                 size={'md'}>
                                 {getSender(user, selectedChat.users)}
                             </Heading>
-
                         </div>
                         <div className="flex justify-center items-center space-x-6 pr-5">
-
                             <AiOutlineSchedule
                                 onClick={() => setModal(true)}
                                 size={24}
@@ -288,7 +233,7 @@ export const SingleChat = () => {
                             />
                         ) : (
                             <div className="w-full">
-                                {/* <ScrollableChat /> */}
+                                <ScrollableChat />
                             </div>
                         )}
                         <div
@@ -296,12 +241,16 @@ export const SingleChat = () => {
                             onKeyDown={handleSendMessage}
                             id="first-name"
                         >
-                            <MessageInput
-                                handleEmoji={handleEmoji}
-                                newMessage={newMessage}
-                                typingHandler={typingHandler}
-                            />
-
+                            <div className="flex px-5 w-full h-full">
+                                <input
+                                    type="text"
+                                    value={newMessage}
+                                    onChange={onChangeMessage}
+                                    placeholder="Type your message"
+                                    className="bg-slate-50 text-md border-none outline-none text-slate-600 w-full "
+                                />
+                                <MessagingTools handleEmoji={handleEmoji} />
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -309,18 +258,15 @@ export const SingleChat = () => {
                 :
                 (
                     <div className="w-full h-full flex justify-center items-center">
-                        <p className="text-lg text-lg font-lato font-bold">Error</p>
+                        <p className="text-lg font-lato font-bold">Error</p>
                         <p className="text-red-500 font-lato  text-sm">Some error occured while loading</p>
                     </div>
                 )}
             {
                 openModal
                 &&
-                <ModalChat
-                    setModal={setModal}
-                    isOpen={openModal} />
+                <ModalChat setModal={setModal} isOpen={openModal} />
             }
         </>
     );
 };
-
