@@ -34,14 +34,13 @@ const Chatlist = ({ chat }) => {
                         &&
                         (
                             <p className='text-gray-400 text-xs mt-2'>
-                                <span className='text-gray-500'>{chatWithStatus.latestMessage.sender.name} : </span>
+                                <span className='text-gray-500'>{chatWithStatus.latestMessage} : </span>
                                 {
                                     chatWithStatus
                                         .latestMessage
-                                        .content
                                         .length > 50
-                                        ? chatWithStatus.latestMessage.content.substring(0, 51) + "..."
-                                        : chatWithStatus.latestMessage.content
+                                        ? chatWithStatus.latestMessage.substring(0, 51) + "..."
+                                        : chatWithStatus.latestMessage
                                 }
                             </p>
                         )
